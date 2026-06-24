@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo SMS Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <main class="main">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div>
+          <h1>Live Demo SMS Panel</h1>
+          <p>1-page HTML + CSS + JavaScript dashboard</p>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="status-box">
+            <span class="dot" id="apiDot"></span>
+            <span id="apiStatusText">Idle</span>
+          </div>
+
+          <div class="user-box">
+            <span>Logged in as</span>
+            <strong id="currentUser">Guest</strong>
+            <button id="logoutBtn" class="btn btn-secondary btn-sm" disabled>Logout</button>
+          </div>
+
+          <button id="reloadBtn" class="btn btn-secondary">Reload</button>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Selected Service</span>
+          <h3 id="statService">—</h3>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Available Services</span>
+          <h3 id="serviceCount">0</h3>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Available Ranges</span>
+          <h3 id="statRanges">0</h3>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Current Number</span>
+          <h3 id="statNumber">—</h3>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Live Messages</span>
+          <h3 id="statMessages">0</h3>
+        </div>
+      </section>
+
+      <!-- Wizard Steps -->
+      <section class="wizard-bar" aria-label="Step navigation">
+        <button class="wizard-step step-active" data-step="1">1. Select service</button>
+        <button class="wizard-step" data-step="2">2. Select range</button>
+        <button class="wizard-step" data-step="3">3. Number & OTP</button>
+      </section>
+
+      <section class="content-grid">
+        <div id="step1" class="step-panel step-active">
+          <div class="card card-large">
+            <div class="card-head">
+              <div>
+                <h2>Select a Service</h2>
+                <p>Choose one service before moving to the next step.</p>
+              </div>
+            </div>
+
+            <div class="search-wrap">
+              <input id="serviceSearch" type="text" placeholder="Search service..." />
+            </div>
+
+            <div id="serviceList" class="service-list">
+              <div class="empty-state small">Loading services...</div>
+            </div>
+
+            <div class="button-row">
+              <button id="nextToRangeBtn" class="btn btn-primary btn-sm">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="step2" class="step-panel">
+          <div class="card card-large">
+            <div class="card-head">
+              <div>
+                <h2>Select a Range</h2>
+                <p>Choose a range for <strong id="selectedServiceLabel">no service</strong>.</p>
+              </div>
+            </div>
+
+            <div id="selectedServiceBanner" class="info-banner">
+              Pick a service first to see available ranges.
+            </div>
+
+            <div id="rangesList" class="ranges-grid">
+              <div class="empty-state">No service selected yet.</div>
+            </div>
+
+            <div class="button-row">
+              <button id="backToServiceBtn" class="btn btn-secondary btn-sm">Back</button>
+              <button id="nextToNumberBtn" class="btn btn-primary btn-sm">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="step3" class="step-panel">
+          <div class="card card-large">
+            <div class="card-head">
+              <div>
+                <h2>Number & OTP</h2>
+                <p>View the number and incoming messages for the selected range.</p>
+              </div>
+            </div>
+
+            <div id="numberInfo" class="number-box empty-state">
+              No number provisioned yet.
+            </div>
+
+            <div class="card-head" style="margin-top: 18px;">
+              <div>
+                <h2>Live OTPs</h2>
+                <p>Detected one-time codes from incoming messages (click to copy)</p>
+              </div>
+            </div>
+
+            <div id="otpList" class="otp-list">
+              <div class="empty-state">No OTPs yet.</div>
+            </div>
+
+            <div class="card-head" style="margin-top: 24px;">
+              <div>
+                <h2>Incoming Messages</h2>
+                <p>Live OTP/SMS for the current number.</p>
+              </div>
+              <button id="pollNowBtn" class="btn btn-secondary btn-sm">
+                Refresh
+              </button>
+            </div>
+
+            <div id="messagesBox" class="messages-box">
+              <div class="empty-state">No messages yet.</div>
+            </div>
+
+            <div class="button-row" style="margin-top: 16px;">
+              <button id="backToRangeBtn" class="btn btn-secondary btn-sm">Back</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>Saved Memory</h2>
+                <p>Previously provisioned numbers and messages for this user</p>
+              </div>
+            </div>
+
+            <div id="historyList" class="history-list">
+              <div class="empty-state">No history yet.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <div id="loginOverlay" class="overlay hidden">
+    <div class="overlay-card">
+      <h2>Login / Choose User</h2>
+      <p>Select or add a user to keep each dashboard separate.</p>
+
+      <div class="form-group">
+        <label for="loginUserSelect">Existing user</label>
+        <select id="loginUserSelect"></select>
+      </div>
+
+      <div class="button-row">
+        <button id="loginBtn" class="btn btn-primary">Login</button>
+      </div>
+
+      <hr />
+
+      <div class="form-group">
+        <label for="loginNewUserInput">New user name</label>
+        <input id="loginNewUserInput" type="text" placeholder="Enter a new user name" />
+      </div>
+      <div class="button-row">
+        <button id="addUserBtn" class="btn btn-secondary">Add user</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
